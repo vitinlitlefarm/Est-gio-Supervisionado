@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Acadêmica Profissional</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-university"></i> Sistema de Horários</h1>
+        <nav class="navbar">
+            <button onclick="mostrarSecao('sec-professores')" class="active">Professores</button>
+            <button onclick="mostrarSecao('sec-cursos')">Cursos</button>
+            <button onclick="mostrarSecao('sec-disciplinas')">Disciplinas</button>
+            <button onclick="mostrarSecao('sec-aulas')">Alocar Aulas</button>
+            <button onclick="mostrarSecao('sec-grade')">Grade Semanal</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- SEÇÃO: PROFESSORES -->
+        <section id="sec-professores" class="card secao">
+            <h2><i class="fas fa-user-plus"></i> Cadastro de Professor</h2>
+            <form id="form-professor">
+                <input type="text" id="prof-nome" placeholder="Nome do Professor" required>
+                
+                <div class="form-disponibilidade">
+                    <p>Dias Disponíveis:</p>
+                    <label><input type="checkbox" name="dia-prof" value="Segunda"> Seg</label>
+                    <label><input type="checkbox" name="dia-prof" value="Terça"> Ter</label>
+                    <label><input type="checkbox" name="dia-prof" value="Quarta"> Qua</label>
+                    <label><input type="checkbox" name="dia-prof" value="Quinta"> Qui</label>
+                    <label><input type="checkbox" name="dia-prof" value="Sexta"> Sex</label>
+                </div>
+
+                <div class="form-disponibilidade" style="display: block;">
+                    <p style="margin-bottom: 5px;">Disciplinas Qualificadas:</p>
+                    
+                    <div class="tag-input-container">
+                        <div id="tags-selecionadas" class="tags-box"></div>
+                        <input type="text" id="busca-disciplina" placeholder="Digite para buscar disciplinas..." autocomplete="off">
+                        <ul id="sugestoes-disciplinas" class="sugestoes-lista hidden"></ul>
+                    </div>
+                    
+                    <p id="aviso-sem-disciplinas" style="color:#dc2626; font-size:0.9rem; display:none; margin-top:5px;">Cadastre disciplinas primeiro na aba "Disciplinas"!</p>
+                </div>
+
+                <button type="submit" class="btn-salvar">Salvar Professor</button>
+            </form>
+            <ul id="lista-professores" class="item-list"></ul>
+        </section>
+
+        <!-- SEÇÃO: CURSOS -->
+        <section id="sec-cursos" class="card secao hidden">
+            <h2><i class="fas fa-graduation-cap"></i> Cadastro de Curso</h2>
+            <form id="form-curso">
+                <input type="text" id="curso-nome" placeholder="Nome do Curso" required>
+                <button type="submit" class="btn-salvar">Salvar Curso</button>
+            </form>
+            <ul id="lista-cursos" class="item-list"></ul>
+        </section>
+
+        <!-- SEÇÃO: DISCIPLINAS -->
+        <section id="sec-disciplinas" class="card secao hidden">
+            <h2><i class="fas fa-book"></i> Cadastro de Disciplina</h2>
+            <form id="form-disciplina">
+                <input type="text" id="disc-nome" placeholder="Nome da Disciplina" required>
+                <select id="disc-curso" required>
+                    <option value="">Selecione o Curso Vinculado...</option>
+                </select>
+                <button type="submit" class="btn-salvar">Salvar Disciplina</button>
+            </form>
+            <ul id="lista-disciplinas" class="item-list"></ul>
+        </section>
+
+        <!-- SEÇÃO: ALOCAR AULAS -->
+        <section id="sec-aulas" class="card secao hidden">
+            <h2><i class="fas fa-chalkboard-teacher"></i> Alocação de Aulas (19h às 22h10)</h2>
+            <form id="form-aula">
+                <div class="form-row">
+                    <select id="aula-curso" required onchange="filtrarDisciplinasAula()">
+                        <option value="">1. Escolha o Curso</option>
+                    </select>
+                    
+                    <select id="aula-disciplina" required onchange="filtrarProfessoresAula()">
+                        <option value="">2. Escolha a Disciplina</option>
+                    </select>
+                    
+                    <select id="aula-professor" required>
+                        <option value="">3. Escolha o Professor</option>
+                    </select>
+                    
+                    <select id="aula-dia" required>
+                        <option value="">4. Escolha o Dia</option>
+                        <option value="Segunda">Segunda-feira</option>
+                        <option value="Terça">Terça-feira</option>
+                        <option value="Quarta">Quarta-feira</option>
+                        <option value="Quinta">Quinta-feira</option>
+                        <option value="Sexta">Sexta-feira</option>
+                    </select>
+                    
+                    <select id="aula-periodo" required>
+                        <option value="">5. Escolha o Período</option>
+                        <option value="1º Período">1º Período</option>
+                        <option value="3º Período">3º Período</option>
+                        <option value="5º Período">5º Período</option>
+                        <option value="7º Período">7º Período</option>
+                        <option value="9º Período">9º Período</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-salvar">Agendar Aula</button>
+                <p id="msg-erro" style="color: red; display: none; margin-top: 10px;"></p>
+            </form>
+            <ul id="lista-aulas" class="item-list"></ul>
+        </section>
+
+        <!-- SEÇÃO: GRADE SEMANAL -->
+        <section id="sec-grade" class="card secao hidden">
+            <h2><i class="fas fa-calendar-alt"></i> Grade Semanal</h2>
+            <select id="filtro-grade-curso" onchange="renderizarGrade()">
+                <option value="">Selecione um curso para ver a grade...</option>
+            </select>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Período</th> <th>Segunda</th>
+                            <th>Terça</th>
+                            <th>Quarta</th>
+                            <th>Quinta</th>
+                            <th>Sexta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grade-aulas"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
